@@ -1,52 +1,32 @@
 'use strict';
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
 
 var names = ['Иван', 'Хуан', 'Себастьян', 'Мария', 'Кристоф', 'Виктор', 'Юлия', 'Люпита', 'Вашингтон'];
 var surnames = ['да Марья', 'Верон', 'Мирабелла', 'Вальц', 'Онопко', 'Топольницкая', 'Нионго', 'Ирвинг'];
-var coatcolors = ['rgb(101, 137, 164)', 'rgb(241, 43, 107)', 'rgb(146, 100, 161)', 'rgb(56, 159, 117)', 'rgb(215, 210, 55)', 'rgb(0, 0, 0)'];
+var coatColors = ['rgb(101, 137, 164)', 'rgb(241, 43, 107)', 'rgb(146, 100, 161)', 'rgb(56, 159, 117)', 'rgb(215, 210, 55)', 'rgb(0, 0, 0)'];
 var eyesColors = ['black', 'red', 'blue', 'yellow', 'green'];
+var fireBallColors = ['#ee4830', '#30a8ee', '#5ce6c0', '#e848d5', '#e6e848'];
 
 // генератор случайных целых чисел
 function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// генерация случайных объектов волшебников
-
-var getWizardName = function () {
-  var wizardName = names[getRandomIntInclusive(0, names.length - 1)] + ' ' + surnames[getRandomIntInclusive(0, surnames.length - 1)];
-  return wizardName;
-};
-
-var getWizardCoatColor = function () {
-  var WizardCoatColor = coatcolors[getRandomIntInclusive(0, coatcolors.length - 1)];
-  return WizardCoatColor;
-};
-
-var getWizardEyesColor = function () {
-  var WizardEyesColor = eyesColors[getRandomIntInclusive(0, eyesColors.length - 1)];
-  return WizardEyesColor;
-};
-
-var getNewWizardObj = function (attr1, attr2, attr3) {
-  var object = {
-    name: attr1,
-    coatColor: attr2,
-    eyesColor: attr3
-  };
-  return object;
+var getWizardAttrProperty = function (arr) {
+  var propertyColor = arr[getRandomIntInclusive(0, arr.length - 1)];
+  return propertyColor;
 };
 
 // создаем массив объектов волшебников
 var wizardArray = [];
-
-var fillWizardArray = function () {
-  for (var i = 0; i < 4; i++) {
-    wizardArray[i] = getNewWizardObj(getWizardName(), getWizardCoatColor(), getWizardEyesColor());
-  }
-  return wizardArray;
-};
-
-fillWizardArray();
+for (var i = 0; i < 4; i++) {
+  wizardArray[i] = {
+    name: getWizardAttrProperty(names) + ' ' + getWizardAttrProperty(surnames),
+    coatColor: getWizardAttrProperty(coatColors),
+    eyesColor: getWizardAttrProperty(eyesColors)
+  };
+}
 
 // создание DOM-элемента по шаблону на основе js-объекта
 var createDomElement = function (objectItem) {
@@ -77,8 +57,8 @@ var parentDomElement = document.querySelector('.setup-similar-list');
 var fragment = document.createDocumentFragment();
 
 // создаем и заполняем данными DOM-элементы и добавляем их в контейнер
-for (var i = 0; i < wizardArray.length; i++) {
-  var domElementFinal = createDomElement(wizardArray[i]);
+for (var k = 0; k < wizardArray.length; k++) {
+  var domElementFinal = createDomElement(wizardArray[k]);
   fragment.appendChild(domElementFinal);
 }
 
@@ -86,3 +66,61 @@ for (var i = 0; i < wizardArray.length; i++) {
 parentDomElement.appendChild(fragment);
 
 
+// события и асинхронность
+var setupEl = document.querySelector('.setup');
+var setupOpenEl = document.querySelector('.setup-open');
+var setupCloseEl = setupEl.querySelector('.setup-close');
+var wizardCoatEl = document.querySelector('.wizard-coat');
+var wizardEyesEl = document.querySelector('.wizard-eyes');
+var wizardHiddenPEl = document.querySelectorAll('.setup-wizard-appearance input');
+var wizardCoatHiddenEl = wizardHiddenPEl[0];
+var wizardEyesHiddenEl = wizardHiddenPEl[1];
+var wizardFireBallEl = document.querySelector('.setup-fireball-wrap');
+
+// открытие окна настроек
+var openSetupPopup = function () {
+  setupEl.classList.remove('hidden');
+};
+var closeSetupPopup = function () {
+  setupEl.classList.add('hidden');
+  document.removeEventListener('keydown', onPopupEscPress);
+};
+
+var onPopupEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closeSetupPopup();
+  }
+};
+setupOpenEl.addEventListener('click', function () {
+  openSetupPopup();
+  document.addEventListener('keydown', onPopupEscPress);
+}
+);
+// закрытие окна настроек
+setupOpenEl.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    openSetupPopup();
+  }
+});
+setupCloseEl.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    closeSetupPopup();
+  }
+});
+setupCloseEl.addEventListener('click', function () {
+  closeSetupPopup();
+});
+// работа с событиями на фигурке волшебника
+wizardCoatEl.addEventListener('click', function () {
+  var color = getWizardAttrProperty(coatColors);
+  wizardCoatEl.style.fill = color;
+  wizardCoatHiddenEl.value = color;
+});
+wizardEyesEl.addEventListener('click', function () {
+  var color = getWizardAttrProperty(eyesColors);
+  wizardEyesEl.style.fill = color;
+  wizardEyesHiddenEl.value = color;
+});
+wizardFireBallEl.addEventListener('click', function () {
+  wizardFireBallEl.style.backgroundColor = getWizardAttrProperty(fireBallColors);
+});
