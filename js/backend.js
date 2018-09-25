@@ -1,5 +1,25 @@
 'use strict';
 (function () {
+  var err;
+
+  var getReaction = function (obj, onLoad, onError) {
+    switch (obj.status) {
+      case 200:
+        onLoad(obj.response);
+        break;
+
+      case 400:
+        err = 'Неверный запрос';
+        break;
+
+      default:
+        err = 'Статус ответа: ' + obj.status + ' ' + obj.statusText;
+        break;
+    }
+    if (err) {
+      onError(err);
+    }
+  };
   window.load = function (onLoad, onError) {
     var xhr = new XMLHttpRequest();
 
@@ -16,27 +36,7 @@
 
     xhr.addEventListener('load', function () {
       try {
-        var err;
-        switch (xhr.status) {
-          case 200:
-            onLoad(xhr.response);
-            break;
-
-          case 400:
-            err = 'Неверный запрос';
-            break;
-
-          case 404:
-            err = 'Ничего не найдено';
-            break;
-
-          default:
-            err = 'Статус ответа: ' + xhr.status + ' ' + xhr.statusText;
-            break;
-        }
-        if (err) {
-          onError(err);
-        }
+        getReaction(xhr, onLoad, onError);
       } catch (error) {
         onError(error.message);
       }
@@ -58,26 +58,10 @@
 
     xhr.responseType = 'json';
     xhr.open('POST', 'https://js.dump.academy/code-and-magick');
-    var err;
+
     xhr.addEventListener('load', function () {
       try {
-
-        switch (xhr.status) {
-          case 200:
-            onLoad();
-            break;
-
-          case 400:
-            err = 'Неверный запрос';
-            break;
-
-          default:
-            err = 'Статус ответа: ' + xhr.status + ' ' + xhr.statusText;
-            break;
-        }
-        if (err) {
-          onError(err);
-        }
+        getReaction(xhr, onLoad, onError);
       } catch (error) {
         onError(error.message);
       }
