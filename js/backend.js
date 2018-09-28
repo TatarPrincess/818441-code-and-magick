@@ -20,7 +20,7 @@
       onError(err);
     }
   };
-  window.load = function (onLoad, onError) {
+  var load = function (onLoad, onError) {
     var xhr = new XMLHttpRequest();
 
     xhr.addEventListener('error', function () {
@@ -45,7 +45,7 @@
     xhr.send();
   };
 
-  window.save = function (data, onLoad, onError) {
+  var save = function (data, onLoad, onError) {
     var xhr = new XMLHttpRequest();
 
     xhr.addEventListener('error', function () {
@@ -68,6 +68,11 @@
     });
 
     xhr.send(data);
+  };
+
+  window.backend = {
+    load: load,
+    save: save
   };
 
 })();
